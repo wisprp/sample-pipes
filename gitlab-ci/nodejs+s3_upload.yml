@@ -1,0 +1,35 @@
+# AWS_ACCESS_KEY_ID
+# AWS_SECRET_ACCESS_KEY
+# AWS_S3_BUCKET
+
+build:
+  stage: build
+  image: node:<NODE_VERSION>
+  tags: 
+    - docker
+  script:
+    - npm install
+    - npm run <BUILD_STATIC>
+  only:
+    - ci
+    - master
+  artifacts:
+    expire_in: 15 min
+    paths:
+      - <OUTPUT_DIR>/
+
+deploy:
+  stage: deploy
+  image: python:3.7
+  tags: 
+    - docker
+  script:
+    - pip install awscli
+    - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+    - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+    - aws s3 cp <OUTPUT_DIR> s3://$AWS_S3_BUCKET/ --recursive
+  dependencies:
+    - build
+  only:
+    - ci
+    - master
