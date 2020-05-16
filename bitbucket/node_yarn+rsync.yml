@@ -1,0 +1,34 @@
+
+image: composer/composer:latest
+
+pipelines:
+  default:
+    - step: &build_static
+        name: Build static
+        image: node:13.5.0
+        caches:
+          - node
+        script:
+          - npm i && yarn prod
+        artifacts:
+          - public/**
+
+  branches:
+    remote-dev:
+    - step:
+        <<: *build_static     
+    - step:
+        name: Deploy to Development
+        script:
+          - echo "Deploy to Development server"
+          - rsync -aclvrzp --no-perms --exclude .git/ --exclude bitbucket-pipelines.yml -e "ssh -p22" ./ $DEV_URL
+
+
+    remote-prod:
+      - step:
+          <<: *build_static     
+      - step:
+          name: Deploy to Production
+          script:
+            - echo "Deploy to Production server"
+            - rsync -aclvrzp --no-perms --exclude .git/ --exclude bitbucket-pipelines.yml -e "ssh -p22" ./ $PROD_URL
