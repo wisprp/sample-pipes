@@ -1,8 +1,18 @@
-
 image: composer/composer:latest
 
-pipelines:
-  default:
+definitions: 
+  steps: 
+    # common step for assebling composer packages
+    - step: &composer_update
+        name: Composer update
+        image: composer/composer:latest
+        caches: 
+          - composer
+        script:
+          - composer update
+        artifacts:
+          - vendor/**
+    # common step for building static files into *public/* directory
     - step: &build_static
         name: Build static
         image: node:13.5.0
@@ -13,6 +23,7 @@ pipelines:
         artifacts:
           - public/**
 
+pipelines:
   branches:
     remote-dev:
     - step:
@@ -22,8 +33,7 @@ pipelines:
         script:
           - echo "Deploy to Development server"
           - rsync -aclvrzp --no-perms --exclude .git/ --exclude bitbucket-pipelines.yml -e "ssh -p22" ./ $DEV_URL
-
-
+          
     remote-prod:
       - step:
           <<: *build_static     
