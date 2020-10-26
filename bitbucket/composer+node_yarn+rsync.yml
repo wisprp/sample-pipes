@@ -26,8 +26,11 @@ definitions:
 pipelines:
   branches:
     remote-dev:
-    - step:
-        <<: *build_static     
+    - parallel:
+      - step:
+          <<: *composer_update
+      - step:
+          <<: *build_static   
     - step:
         name: Deploy to Development
         image: eeacms/rsync
@@ -36,8 +39,11 @@ pipelines:
           - rsync -aclvrzp --no-perms --exclude .git/ --exclude bitbucket-pipelines.yml -e "ssh -p22" ./ $DEV_URL
           
     remote-prod:
-      - step:
-          <<: *build_static     
+      - parallel:
+        - step:
+            <<: *composer_update
+        - step:
+            <<: *build_static  
       - step:
           name: Deploy to Production
           image: eeacms/rsync
