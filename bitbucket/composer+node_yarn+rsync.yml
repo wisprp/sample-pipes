@@ -26,17 +26,17 @@ definitions:
 pipelines:
   branches:
     remote-dev:
-    - parallel:
+      - parallel:
+        - step:
+            <<: *composer_update
+        - step:
+            <<: *build_static   
       - step:
-          <<: *composer_update
-      - step:
-          <<: *build_static   
-    - step:
-        name: Deploy to Development
-        image: eeacms/rsync
-        script:
-          - echo "Deploy to Development server"
-          - rsync -aclvrzp --no-perms --exclude .git/ --exclude bitbucket-pipelines.yml -e "ssh -p22" ./ $DEV_URL
+          name: Deploy to Development
+          image: eeacms/rsync
+          script:
+            - echo "Deploy to Development server"
+            - rsync -aclvrzp --no-perms --exclude .git/ --exclude bitbucket-pipelines.yml -e "ssh -p22" ./ $DEV_URL
           
     remote-prod:
       - parallel:
