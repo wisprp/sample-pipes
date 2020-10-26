@@ -5,7 +5,7 @@ definitions:
     # common step for assebling composer packages
     - step: &composer_update
         name: Composer update
-        image: composer/composer:latest
+        image: composer/composer:1
         caches: 
           - composer
         script:
@@ -30,6 +30,7 @@ pipelines:
         <<: *build_static     
     - step:
         name: Deploy to Development
+        image: eeacms/rsync
         script:
           - echo "Deploy to Development server"
           - rsync -aclvrzp --no-perms --exclude .git/ --exclude bitbucket-pipelines.yml -e "ssh -p22" ./ $DEV_URL
@@ -39,6 +40,7 @@ pipelines:
           <<: *build_static     
       - step:
           name: Deploy to Production
+          image: eeacms/rsync
           script:
             - echo "Deploy to Production server"
             - rsync -aclvrzp --no-perms --exclude .git/ --exclude bitbucket-pipelines.yml -e "ssh -p22" ./ $PROD_URL
