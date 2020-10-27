@@ -33,7 +33,7 @@ pipelines:
             <<: *build_static   
       - step:
           name: Deploy to Development
-          image: eeacms/rsync
+          image: eeacms/rsync:2.3
           script:
             - echo "Deploy to Development server"
             - rsync -aclvrzp --no-perms --exclude .git/ --exclude bitbucket-pipelines.yml -e "ssh -p22" ./ $DEV_URL
@@ -46,7 +46,7 @@ pipelines:
             <<: *build_static  
       - step:
           name: Deploy to Production
-          image: eeacms/rsync
+          image: eeacms/rsync:2.3
           script:
             - echo "Deploy to Production server"
             - rsync -aclvrzp --no-perms --exclude .git/ --exclude bitbucket-pipelines.yml -e "ssh -p22" ./ $PROD_URL
