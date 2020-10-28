@@ -22,6 +22,12 @@ definitions:
           - npm i && yarn prod
         artifacts:
           - public/**
+    # Send HTTP hook
+    - step: &http_hook
+        name: 
+        image: curlimages/curl:7.73.0
+        script:
+          - "curl --fail ${HOOK_URL} -H \"authorization: Basic ${BASE64_AUTH}\""
 
 pipelines:
   branches:
@@ -37,6 +43,8 @@ pipelines:
           script:
             - echo "Deploy to Development server"
             - rsync -aclvrzp --no-perms --exclude .git/ --exclude bitbucket-pipelines.yml -e "ssh -p22" ./ $DEV_URL
+      - step:
+            <<: *http_hook
           
     remote-prod:
       - parallel:
@@ -50,3 +58,5 @@ pipelines:
           script:
             - echo "Deploy to Production server"
             - rsync -aclvrzp --no-perms --exclude .git/ --exclude bitbucket-pipelines.yml -e "ssh -p22" ./ $PROD_URL
+      - step:
+            <<: *http_hook
