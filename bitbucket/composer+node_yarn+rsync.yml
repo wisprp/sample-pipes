@@ -9,7 +9,7 @@ definitions:
         caches: 
           - composer
         script:
-          - composer update
+          - composer update --ignore-platform-reqs
         artifacts:
           - vendor/**
     # common step for building static files into *public/* directory
